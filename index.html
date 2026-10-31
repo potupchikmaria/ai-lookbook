@@ -85,6 +85,16 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blush);outline-
 .empty{color:var(--muted);padding:20px 0}
 .note{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:70ch}
 .more{align-self:flex-start}
+.try{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.try summary{cursor:pointer;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.try summary::-webkit-details-marker{display:none}
+.try summary span{color:var(--blush);font-size:13px;font-weight:400}
+.try ol{margin:12px 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:14px}
+.try ol a{color:var(--ink)}
+.try textarea{width:100%;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical}
+.try .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.try .msg{font-size:13px;color:var(--muted)}
+.try .msg.err{color:#B3261E}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:no-preference){.look{animation:in .25s ease both}@keyframes in{from{transform:translateY(4px)}to{transform:none}}}
 </style>
@@ -97,6 +107,22 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blush);outline-
     <p class="lede" id="lede"></p>
   </header>
   <section class="formula" aria-label="Style formula" id="formula"></section>
+
+  <details class="try" id="try">
+    <summary>Try it with your own wardrobe <span id="tryState">Example wardrobe</span></summary>
+    <ol>
+      <li>Photograph your clothes, one piece per photo, plus a few outfits you love.</li>
+      <li>Send the photos to Claude, ChatGPT or any AI that reads images, with <a href="https://github.com/potupchikmaria/ai-lookbook/blob/main/PROMPT.md" target="_blank" rel="noopener">this prompt</a>.</li>
+      <li>Paste the file it returns below. It stays in this browser only.</li>
+    </ol>
+    <label for="custom" class="msg">Your wardrobe file</label>
+    <textarea id="custom" rows="7" spellcheck="false" placeholder="window.WARDROBE = { ... };"></textarea>
+    <div class="acts">
+      <button class="btn" id="loadCustom" type="button">Load my wardrobe</button>
+      <button class="btn line" id="resetCustom" type="button">Back to the example</button>
+      <span class="msg" id="customMsg" role="status"></span>
+    </div>
+  </details>
 
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-trip" aria-selected="true">Pack for a trip</button>
@@ -152,6 +178,49 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--blush);outline-
   <p class="note" id="note"></p>
 </div>
 <script src="wardrobe.js"></script>
+<script>
+/* If the visitor pasted their own wardrobe, use it instead of the example. */
+(function () {
+  var src = null;
+  try { src = localStorage.getItem('ai-lookbook-custom'); } catch (e) {}
+  if (!src) return;
+  try {
+    var w = new Function('var window = {};\n' + src + '\n;return window.WARDROBE;')();
+    if (w && w.items && w.items.length) { window.WARDROBE = w; window.CUSTOM_WARDROBE = true; }
+  } catch (e) { console.warn('Saved wardrobe could not be read', e); }
+})();
+</script>
 <script src="app.js"></script>
+<script>
+(function () {
+  var KEY = 'ai-lookbook-custom';
+  var box = document.getElementById('custom'), msg = document.getElementById('customMsg');
+  if (window.CUSTOM_WARDROBE) {
+    document.getElementById('tryState').textContent = 'Your wardrobe is loaded';
+    try { box.value = localStorage.getItem(KEY) || ''; } catch (e) {}
+  }
+  function say(t, err) { msg.textContent = t; msg.className = 'msg' + (err ? ' err' : ''); }
+  document.getElementById('loadCustom').addEventListener('click', function () {
+    var src = box.value.trim().replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '');
+    if (!src) return say('Paste the file the AI gave you first.', true);
+    var w;
+    try { w = new Function('var window = {};\n' + src + '\n;return window.WARDROBE;')(); }
+    catch (e) { return say('This doesn’t look like a complete file: ' + e.message, true); }
+    if (!w || !w.items || !w.items.length) return say('The file needs to start with window.WARDROBE = { and include items.', true);
+    var ids = {}; w.items.forEach(function (x) { ids[x.id] = 1; });
+    var missing = (w.favourites || []).concat(w.presets || []).some(function (f) {
+      return [f.layer, f.top, f.bottom, f.dress].concat(f.items || []).some(function (i) { return i && !ids[i]; });
+    });
+    if (missing) return say('Some favourites or packing sets use ids that aren’t in items. Ask the AI to fix them.', true);
+    try { localStorage.setItem(KEY, src); } catch (e) { return say('Your browser blocked saving. Try a normal (not private) window.', true); }
+    say('Loaded ' + w.items.length + ' pieces. Opening your lookbook…');
+    setTimeout(function () { location.reload(); }, 400);
+  });
+  document.getElementById('resetCustom').addEventListener('click', function () {
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    location.reload();
+  });
+})();
+</script>
 </body>
 </html>
