@@ -11,7 +11,9 @@
 [![GitHub Pages](https://img.shields.io/badge/Hosting-GitHub_Pages-222222?style=flat-square&logo=github&logoColor=white)](#5-put-it-online-optional)
 [![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
 
-**[Live demo](https://potupchikmaria.github.io/ai-lookbook/) · [Why I built this](#the-problem-this-solves) · [What it does](#what-it-does) · [Setup in 15 min](#setup-in-15-minutes) · [Wardrobe format](#wardrobe-format)**
+### [▶ Try it now — no install](https://potupchikmaria.github.io/ai-lookbook/)
+
+**[Try it now](#try-it-now) · [Why I built this](#the-problem-this-solves) · [What it does](#what-it-does) · [Setup in 15 min](#setup-in-15-minutes) · [Wardrobe format](#wardrobe-format)**
 
 </div>
 
@@ -20,6 +22,19 @@
 Most styling apps want you to buy more. This one starts from the opposite end: photograph what's already in your wardrobe, let AI work out what suits you, and get a lookbook that plans every outfit for every trip.
 
 ![Ticking pieces for a trip](docs/packing.svg)
+
+---
+
+## Try it now
+
+No download, no sign-up, no code.
+
+1. **Open the [live demo](https://potupchikmaria.github.io/ai-lookbook/).** It starts with an example wardrobe, so you can play with the trip planner straight away.
+2. **Photograph your clothes**, one piece per photo, plus a few outfits you love.
+3. **Send the photos to any AI that reads images** (Claude, ChatGPT, Gemini) together with [`PROMPT.md`](PROMPT.md). It returns your wardrobe file and an honest style verdict.
+4. **Paste that file into "Try it with your own wardrobe"** at the top of the demo and press **Load my wardrobe**.
+
+The page becomes your lookbook. Nothing is uploaded anywhere: your wardrobe is saved only in your own browser, and **Back to the example** clears it.
 
 ---
 
@@ -96,20 +111,22 @@ Days are filled greedily from the highest-ranked outfits, with a penalty for eve
 
 ```
 ai-lookbook/
-├── index.html     ← the page and its styles
+├── index.html     ← the page, its styles and the "use my wardrobe" panel
 ├── app.js         ← outfit engine, trip planner, UI (no edits needed)
-├── wardrobe.js    ← YOUR wardrobe, style formula and packing sets
-├── PROMPT.md      ← the prompt that turns photos into wardrobe.js
+├── wardrobe.js    ← the example wardrobe, style formula and packing sets
+├── PROMPT.md      ← the prompt that turns photos into a wardrobe file
 └── docs/          ← illustrations
 ```
 
-**Fully private by default.** One HTML page, no server, no account, no tracking. Your selections are saved only in your own browser.
+**Fully private by default.** One HTML page, no server, no account, no tracking. Your wardrobe and selections are saved only in your own browser.
 
 **Zero dependencies, zero build step.** Plain HTML, CSS and JavaScript. Fonts come from Google Fonts and fall back to system fonts offline.
 
 ---
 
 ## Setup in 15 minutes
+
+Want your own copy, online at your own address? Fork it.
 
 ### 1. Clone
 
@@ -136,7 +153,7 @@ Replace `wardrobe.js` with the file you got, then open `index.html` in your brow
 
 Push to your fork, then **Settings → Pages → Deploy from branch → `main` / root**. Your lookbook will live at `https://YOUR_USERNAME.github.io/ai-lookbook/`.
 
-> A public Pages site can be opened by anyone with the link. To keep your wardrobe private, just open `index.html` locally.
+> A public Pages site can be opened by anyone with the link. To keep your wardrobe private, use the paste panel in the demo, or open `index.html` locally.
 
 ---
 
@@ -170,10 +187,10 @@ The same file also holds your `profile` (headline and style formula), colour `ru
 |-------|-----------|
 | Page | HTML + CSS, light and dark themes, mobile-first |
 | Engine | Vanilla JavaScript, runs in the browser |
-| Data | One `wardrobe.js` file |
+| Data | One `wardrobe.js` file, or pasted into the page |
 | AI step | Any multimodal assistant + [`PROMPT.md`](PROMPT.md) |
-| Storage | Browser `localStorage` (selections only) |
-| Hosting | Open locally, or GitHub Pages |
+| Storage | Browser `localStorage` only |
+| Hosting | GitHub Pages, or open locally |
 
 ---
 
