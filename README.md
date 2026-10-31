@@ -19,7 +19,7 @@
 
 Most styling apps want you to buy more. This one starts from the opposite end: photograph what's already in your wardrobe, let AI work out what suits you, and get a lookbook that plans every outfit for every trip.
 
-![Ticking pieces for a trip](docs/packing.png)
+![Ticking pieces for a trip](docs/packing.svg)
 
 ---
 
@@ -50,7 +50,7 @@ Day 2  Black double-breasted blazer · blush satin shirt · black trousers
 ...
 ```
 
-![Day-by-day plan](docs/day-plan.png)
+![Day-by-day plan](docs/day-plan.svg)
 
 - **Trip planner.** Climate (hot, spring/autumn, cold), one-tap packing sets, and a no-repeat plan for up to 21 days.
 - **Outfits by season.** Your favourite combinations, then everything else your wardrobe can do in each season.
@@ -100,7 +100,7 @@ ai-lookbook/
 ├── app.js         ← outfit engine, trip planner, UI (no edits needed)
 ├── wardrobe.js    ← YOUR wardrobe, style formula and packing sets
 ├── PROMPT.md      ← the prompt that turns photos into wardrobe.js
-└── docs/          ← screenshots
+└── docs/          ← illustrations
 ```
 
 **Fully private by default.** One HTML page, no server, no account, no tracking. Your selections are saved only in your own browser.
