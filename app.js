@@ -4,15 +4,20 @@
   const W = window.WARDROBE;
   if (!W) { document.body.insertAdjacentHTML('afterbegin', '<p style="padding:24px">wardrobe.js is missing or has a syntax error.</p>'); return; }
 
-  const C = W.colors;
-  const NEUT = new Set(W.rules.neutrals);
-  const LIGHT = new Set(W.rules.lights);
+  const C = W.colors || {};
+  const RU = W.rules || {};
+  const NEUT = new Set(RU.neutrals || ['white', 'cream', 'ivory', 'beige', 'camel', 'grey', 'black', 'navy', 'denim', 'brown', 'chocolate']);
+  const LIGHT = new Set(RU.lights || ['white', 'cream', 'ivory', 'beige']);
   const pairKey = (a, b) => [a, b].sort().join('|');
-  const ALLOW = new Set(W.rules.allowedAccentPairs.map(p => pairKey(p[0], p[1])));
-  const CLASH = new Set(W.rules.clashingPairs.map(p => pairKey(p[0], p[1])));
+  const ALLOW = new Set((RU.allowedAccentPairs || []).map(p => pairKey(p[0], p[1])));
+  const CLASH = new Set((RU.clashingPairs || []).map(p => pairKey(p[0], p[1])));
   const PATTERNS = ['print', 'stripe', 'graphic'];
 
-  const I = W.items.map(x => ({ flags: [], set: '', ...x }));
+  // fill in anything an AI-written wardrobe file left out, so one missing field never breaks the page
+  const I = (W.items || []).filter(x => x && x.id && x.cat).map(x => ({
+    set: '', fabric: 'matte', formality: [1, 3], seasons: ['su', 'ms', 'wi'], ...x,
+    flags: Array.isArray(x.flags) ? x.flags : []
+  }));
   const byId = Object.fromEntries(I.map(x => [x.id, x]));
   const has = (x, f) => x && x.flags.includes(f);
   const canTop = x => x.cat === 'top' || has(x, 'alsoTop');
@@ -100,7 +105,7 @@
   // proportion hints, driven by item flags and W.proportions toggles
   function fit(o) {
     const P = W.proportions || {}, h = [], { top: t, bottom: b, layer: l, dress: d } = o;
-    if (P.raiseWaist && t && !has(t, 'cropped')) h.push(has(t, 'alsoLayer') && t.fabric === 'knit' ? 'Tuck the cardigan in and add a belt' : 'Tuck the top in to raise the waist');
+    if (P.raiseWaist && t && !has(t, 'cropped')) h.push(t.cat === 'layer' ? 'Tuck the cardigan in and add a belt' : 'Tuck the top in to raise the waist');
     if (P.raiseWaist && l && has(l, 'longLayer')) h.push('Wear the jacket buttoned or belted at the waist');
     if (P.lengthenLegs && b) {
       if (LIGHT.has(b.color)) h.push('Nude shoes matching the trousers lengthen the legs');
@@ -164,7 +169,7 @@
   // ---------- trip builder ----------
   const CLIM = [['su', 'Hot'], ['ms', 'Spring or autumn'], ['wi', 'Cold']];
   const PRESETS = W.presets || [];
-  let st = { clim: store.get('clim', PRESETS[0] ? PRESETS[0].climate : 'ms'), sel: new Set(store.get('sel', PRESETS[0] ? PRESETS[0].items : [])), occ: 0, role: '', showOff: false, limit: 12, jit: 0 };
+  let st = { clim: store.get('clim', PRESETS[0] ? PRESETS[0].climate : 'ms'), sel: new Set(store.get('sel', PRESETS[0] ? PRESETS[0].items : I.map(x => x.id))), occ: 0, role: '', showOff: false, limit: 12, jit: 0 };
   const save = () => { store.set('clim', st.clim); store.set('sel', [...st.sel]); };
 
   function renderClimate() {
